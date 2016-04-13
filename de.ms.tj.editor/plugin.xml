@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="de.ms.tj.editor.TJEditor"
+            default="true"
+            extensions="tjp,tji"
+            id="de.ms.tj.editor.tjeditor"
+            name="TJEditor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="de.ms.tj.editor.TjDocumentSetupParticipant"
+            extensions="tjp,tji">
+      </participant>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="de.ms.tj.editor.preferences.TjPreferencePage"
+            id="de.ms.tj.editor.preferences"
+            name="TaskJuggler">
+      </page>
+      <page
+            category="de.ms.tj.editor.preferences"
+            class="de.ms.tj.editor.preferences.SyntaxHighlightingPage"
+            id="de.ms.tj.editor.highlighting"
+            name="Syntax Highlighting">
+      </page>
+      <page
+            class="de.ms.tj.editor.preferences.SyntaxHighlightingPage"
+            id="de.ms.tj.editor.highlighting"
+            name="Syntax Highlighting">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="de.ms.tj.editor.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+
+</plugin>
