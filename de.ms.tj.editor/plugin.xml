@@ -27,21 +27,10 @@
       </page>
       <page
             category="de.ms.tj.editor.preferences"
-            class="de.ms.tj.editor.preferences.SyntaxHighlightingPage"
+            class="de.ms.tj.editor.preferences.SyntaxElementPreferencePage"
             id="de.ms.tj.editor.highlighting"
             name="Syntax Highlighting">
       </page>
-      <page
-            class="de.ms.tj.editor.preferences.SyntaxHighlightingPage"
-            id="de.ms.tj.editor.highlighting"
-            name="Syntax Highlighting">
-      </page>
-   </extension>
-   <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="de.ms.tj.editor.preferences.PreferenceInitializer">
-      </initializer>
    </extension>
 
 </plugin>

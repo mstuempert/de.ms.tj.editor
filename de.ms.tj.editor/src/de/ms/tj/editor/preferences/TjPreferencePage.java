@@ -28,10 +28,9 @@ public class TjPreferencePage extends PreferencePage implements IWorkbenchPrefer
 
 	@Override
 	protected Control createContents(Composite parent) {
-		Composite mainComp = new Composite(parent, SWT.NULL);
-		Label label = new Label(mainComp, SWT.NULL);
+		Label label = new Label(parent, SWT.NULL);
 		label.setText("TaskJuggler Preferences");
-		return mainComp;
+		return label;
 	}
 
 }

@@ -6,7 +6,7 @@ import org.eclipse.swt.graphics.RGB;
 
 public class SyntaxElementPreference {
 	
-	private boolean isEnabled;
+	private boolean isInherit;
 	
 	private RGB foreground;
 	
@@ -18,18 +18,19 @@ public class SyntaxElementPreference {
 		this(false, null, null, SWT.NONE);
 	}
 	
-	public SyntaxElementPreference(boolean enabled, RGB foreground, RGB background, int style) {
+	public SyntaxElementPreference(boolean inherit, RGB foreground, RGB background, int style) {
+		this.isInherit = inherit;
 		this.foreground = foreground;
 		this.background = background;
 		this.style = style;
 	}
 	
-	public boolean isEnabled() {
-		return this.isEnabled;
+	public boolean isInherit() {
+		return this.isInherit;
 	}
 	
-	public void setEnabled(boolean b) {
-		this.isEnabled = b;
+	public void setInherit(boolean b) {
+		this.isInherit = b;
 	}
 
 	public RGB getForeground() {

@@ -1,9 +1,13 @@
 package de.ms.tj.editor.preferences;
 
+import java.util.HashMap;
+
 import org.eclipse.jface.preference.ColorSelector;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -20,15 +24,16 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.osgi.service.prefs.BackingStoreException;
 
 import de.ms.tj.model.ISyntaxElement;
 import de.ms.tj.model.SyntaxBrowser;
 import de.ms.tj.model.SyntaxLabelProvider;
 import de.ms.tj.model.SyntaxTreeContentProvider;
 
-public class SyntaxHighlightingPage extends PreferencePage implements IWorkbenchPreferencePage {
+public class SyntaxElementPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
-	private Button enabledButton;
+	private Button inheritButton;
 	private ColorSelector fgSelector;
 	private ColorSelector bgSelector;
 	private Button boldButton;
@@ -38,9 +43,12 @@ public class SyntaxHighlightingPage extends PreferencePage implements IWorkbench
 
 	private PreferenceManager pManager;
 	private TreeViewer treeViewer;
+	
+	private HashMap<ISyntaxElement, SyntaxElementPreference> preferences;
 
-	public SyntaxHighlightingPage() {
+	public SyntaxElementPreferencePage() {
 		this.pManager = new PreferenceManager();
+		this.preferences = new HashMap<ISyntaxElement, SyntaxElementPreference>();
 	}
 
 	@Override
@@ -55,9 +63,6 @@ public class SyntaxHighlightingPage extends PreferencePage implements IWorkbench
 
 		GridLayout mainLayout = new GridLayout(1, true);
 		mainComp.setLayout(mainLayout);
-
-		Label mainLabel = new Label(mainComp, SWT.NONE);
-		mainLabel.setText("Specify the color and style for the different elements of the TaskJuggler Syntax");
 
 		Composite controlComp = new Composite(mainComp, SWT.BORDER);
 		controlComp.setLayoutData(new GridData(GridData.BEGINNING, GridData.FILL, true, true));
@@ -74,9 +79,9 @@ public class SyntaxHighlightingPage extends PreferencePage implements IWorkbench
 		buttonComp.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, false, false));
 		buttonComp.setLayout(new GridLayout(2, false));
 
-		this.enabledButton = new Button(buttonComp, SWT.CHECK);
-		this.enabledButton.setText("Enabled");
-		this.enabledButton.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, false, false, 2, 1));
+		this.inheritButton = new Button(buttonComp, SWT.CHECK);
+		this.inheritButton.setText("Inherit");
+		this.inheritButton.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, false, false, 2, 1));
 
 		Label fgLabel = new Label(buttonComp, SWT.NONE);
 		fgLabel.setText("Foreground Color");
@@ -115,14 +120,9 @@ public class SyntaxHighlightingPage extends PreferencePage implements IWorkbench
 				setSelectedElement(element);
 			}
 		});
-		this.enabledButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetDefaultSelected(SelectionEvent e) {
-				fgSelector.setEnabled(enabledButton.getSelection());
-				bgSelector.setEnabled(enabledButton.getSelection());
-				boldButton.setEnabled(enabledButton.getSelection());
-				italicButton.setEnabled(enabledButton.getSelection());
-				underlineButton.setEnabled(enabledButton.getSelection());
-				strikethroughButton.setEnabled(enabledButton.getSelection());
+		this.inheritButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				setControlButtonsEnabled(!inheritButton.getSelection());
 			}
 		});
 		SelectionListener sUpdater = new SelectionAdapter() {
@@ -137,24 +137,46 @@ public class SyntaxHighlightingPage extends PreferencePage implements IWorkbench
 				syncToPreferences(getSelectedElement());
 			}
 		};
-		this.enabledButton.addSelectionListener(sUpdater);
+		this.inheritButton.addSelectionListener(sUpdater);
 		this.fgSelector.addListener(pcListener);
 		this.bgSelector.addListener(pcListener);
 		this.boldButton.addSelectionListener(sUpdater);
 		this.italicButton.addSelectionListener(sUpdater);
 		this.underlineButton.addSelectionListener(sUpdater);
 		this.strikethroughButton.addSelectionListener(sUpdater);
+		
+		clearButtons();
+		this.inheritButton.setEnabled(false);
+		setControlButtonsEnabled(false);
 
 		return mainComp;
 
 	}
+	
+	@Override
+	protected void performDefaults() {
+		super.performDefaults();
+	}
+	
+	@Override
+	public boolean performOk() {
+		for (ISyntaxElement e : this.preferences.keySet()) {
+			try {
+				this.pManager.setSyntaxElementPreference(e, this.preferences.get(e));
+			} catch (BackingStoreException exc) {
+				setErrorMessage(exc.getMessage());
+				return false;
+			}
+		}
+		return super.performOk();
+	}
 
 	protected void setSelectedElement(Object element) {
-		if ((element == null) || !(element instanceof ISyntaxElement) || !((ISyntaxElement) element).isLeaf()) {
-			clearButtons();
-		} else {
+		if (element instanceof ISyntaxElement) {
+			this.inheritButton.setEnabled(true);
 			syncFromPreferences((ISyntaxElement) element);
 		}
+		setControlButtonsEnabled(!this.inheritButton.getSelection());
 	}
 
 	protected ISyntaxElement getSelectedElement() {
@@ -168,11 +190,22 @@ public class SyntaxHighlightingPage extends PreferencePage implements IWorkbench
 		tViewer.setContentProvider(new SyntaxTreeContentProvider());
 		tViewer.setLabelProvider(new SyntaxLabelProvider());
 		tViewer.setInput(SyntaxBrowser.getInstance().getSyntaxRoot());
+		tViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+				Object e = selection.getFirstElement();
+				if (e != null) {
+					boolean state = tViewer.getExpandedState(e);
+					tViewer.setExpandedState(e, !state);
+				}
+			}
+		});
 		return tViewer;
 	}
 
 	private void clearButtons() {
-		this.enabledButton.setSelection(false);
+		this.inheritButton.setSelection(false);
 		this.fgSelector.setColorValue(this.fgSelector.getButton().getBackground().getRGB());
 		this.bgSelector.setColorValue(this.bgSelector.getButton().getBackground().getRGB());
 		this.boldButton.setSelection(false);
@@ -182,9 +215,9 @@ public class SyntaxHighlightingPage extends PreferencePage implements IWorkbench
 	}
 
 	private void syncFromPreferences(ISyntaxElement e) {
-		if ((e != null) && (e.isLeaf())) {
-			SyntaxElementPreference p = this.pManager.getSyntaxElementPreference(e);
-			this.enabledButton.setSelection(p.isEnabled());
+		SyntaxElementPreference p = getPreferences(e);
+		if (p != null) {
+			this.inheritButton.setSelection(p.isInherit());
 			this.fgSelector.setColorValue(p.getForeground() != null ? p.getForeground() : this.fgSelector.getButton().getBackground().getRGB());
 			this.bgSelector.setColorValue(p.getBackground() != null ? p.getBackground() : this.bgSelector.getButton().getBackground().getRGB());
 			this.boldButton.setSelection(p.isBold());
@@ -195,17 +228,38 @@ public class SyntaxHighlightingPage extends PreferencePage implements IWorkbench
 	}
 
 	private void syncToPreferences(ISyntaxElement e) {
-		if ((e != null) && (e.isLeaf())) {
+		if (e != null) {
 			SyntaxElementPreference p = new SyntaxElementPreference();
-			p.setEnabled(this.enabledButton.getSelection());
+			p.setInherit(this.inheritButton.getSelection());
 			p.setForeground(this.fgSelector.getColorValue());
 			p.setBackground(this.bgSelector.getColorValue());
 			p.setBold(this.boldButton.getSelection());
 			p.setItalic(this.italicButton.getSelection());
 			p.setUnderline(this.underlineButton.getSelection());
 			p.setStrikethrough(this.strikethroughButton.getSelection());
-			this.pManager.setSyntaxElementPreference(e, p);
+			this.preferences.put(e, p);
 		}
+	}
+	
+	private SyntaxElementPreference getPreferences(ISyntaxElement e) {
+		SyntaxElementPreference p = null;
+		if (e != null) {
+			p = this.preferences.get(e);
+			if (p == null) {
+				p = this.pManager.getSyntaxElementPreference(e, false);
+				this.preferences.put(e, p);
+			}
+		}
+		return p;
+	}
+	
+	private void setControlButtonsEnabled(boolean b) {
+		fgSelector.setEnabled(b);
+		bgSelector.setEnabled(b);
+		boldButton.setEnabled(b);
+		italicButton.setEnabled(b);
+		underlineButton.setEnabled(b);
+		strikethroughButton.setEnabled(b);
 	}
 
 }

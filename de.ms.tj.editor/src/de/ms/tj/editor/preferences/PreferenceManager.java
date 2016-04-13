@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.osgi.service.prefs.BackingStoreException;
 
 import de.ms.tj.model.ISyntaxElement;
 
@@ -12,7 +13,7 @@ public class PreferenceManager {
 
 	private static final String PREFERENCE_NODE = "tj";
 	
-	private static final String ENABLED_KEY = "_enabled";
+	private static final String INHERIT_KEY = "_inherit";
 	
 	private static final String FG_KEY = "_fg";
 
@@ -20,31 +21,40 @@ public class PreferenceManager {
 	
 	private static final String STYLE_KEY = "_style";
 	
-	public SyntaxElementPreference getSyntaxElementPreference(ISyntaxElement e) {
-		return getSyntaxElementPreference(e.getId());
-	}
-	
-	public void setSyntaxElementPreference(ISyntaxElement e, SyntaxElementPreference p) {
-		setSyntaxElementPreference(e.getId(), p);
-	}
-	
-	protected SyntaxElementPreference getSyntaxElementPreference(String key) {
+	public SyntaxElementPreference getSyntaxElementPreference(ISyntaxElement e, boolean useInheritance) {
+		SyntaxElementPreference result = null;
+		String id = e.getId();
 		IEclipsePreferences p = getPreferences();
-		boolean enabled = p.getBoolean(key+ENABLED_KEY, true);
-		String s = p.get(key+FG_KEY, null);
-		RGB fgColor = s == null ? null : StringConverter.asRGB(s);
-		s = p.get(key+BG_KEY, null);
-		RGB bgColor = s == null ? null : StringConverter.asRGB(s);
-		int style = p.getInt(key+STYLE_KEY, SWT.NONE);
-		return new SyntaxElementPreference(enabled, fgColor, bgColor,style);
+		boolean inherit = p.getBoolean(id+INHERIT_KEY, true);
+		if (inherit && useInheritance && e.getParent() != null) {
+			result = getSyntaxElementPreference(e.getParent(), useInheritance);
+		} else {
+			String s = p.get(id+FG_KEY, null);
+			RGB fgColor = s == null ? null : StringConverter.asRGB(s);
+			s = p.get(id+BG_KEY, null);
+			RGB bgColor = s == null ? null : StringConverter.asRGB(s);
+			int style = p.getInt(id+STYLE_KEY, SWT.NONE);
+			result = new SyntaxElementPreference(inherit, fgColor, bgColor,style);
+		}
+		return result;
 	}
 	
-	protected void setSyntaxElementPreference(String key, SyntaxElementPreference p) {
+	public void setSyntaxElementPreference(ISyntaxElement e, SyntaxElementPreference p) throws BackingStoreException {
+		String id = e.getId();
 		IEclipsePreferences pref = getPreferences();
-		pref.putBoolean(key+ENABLED_KEY, p.isEnabled());
-		pref.put(key+FG_KEY, StringConverter.asString(p.getForeground()));
-		pref.put(key+BG_KEY, StringConverter.asString(p.getBackground()));
-		pref.putInt(key+STYLE_KEY, p.getStyle());
+		pref.putBoolean(id+INHERIT_KEY, p.isInherit());
+		if (p.getForeground() != null) {
+			pref.put(id+FG_KEY, StringConverter.asString(p.getForeground()));
+		} else {
+			pref.remove(id+FG_KEY);
+		}
+		if (p.getBackground() != null) {
+			pref.put(id+BG_KEY, StringConverter.asString(p.getBackground()));
+		} else {
+			pref.remove(id+BG_KEY);
+		}
+		pref.putInt(id+STYLE_KEY, p.getStyle());
+		pref.flush();
 	}
 	
 	protected IEclipsePreferences getPreferences() {

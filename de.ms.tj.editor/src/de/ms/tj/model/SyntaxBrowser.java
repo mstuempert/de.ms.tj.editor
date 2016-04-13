@@ -22,5 +22,27 @@ public class SyntaxBrowser {
 	public ISyntaxContainer getSyntaxRoot() {
 		return this.syntaxRoot;
 	}
+	
+	public ISyntaxElement getElementById(String id) {
+		return findElementById(getSyntaxRoot(), id);
+	}
+	
+	private ISyntaxElement findElementById(ISyntaxElement e, String id) {
+		if (e.getId().equals(id)) {
+			return e;
+		}
+		if (e instanceof ISyntaxContainer) {
+			ISyntaxElement[] children = ((ISyntaxContainer) e).getChildren();
+			if (children != null) {
+				for (ISyntaxElement c : children) {
+					ISyntaxElement r = findElementById(c, id);
+					if (r != null) {
+						return r;
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 }

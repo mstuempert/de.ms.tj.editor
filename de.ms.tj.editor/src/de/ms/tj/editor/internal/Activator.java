@@ -1,5 +1,7 @@
 package de.ms.tj.editor.internal;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -45,6 +47,14 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+	
+	public static final void logException(Exception e) {
+		getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, e.getMessage(), e));
+	}
+	
+	public static final void logStatus(IStatus status) {
+		getDefault().getLog().log(status);
 	}
 
 }
