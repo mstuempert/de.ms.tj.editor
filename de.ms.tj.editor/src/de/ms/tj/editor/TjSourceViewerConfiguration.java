@@ -7,13 +7,11 @@ import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
-import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
-import org.eclipse.swt.widgets.Display;
 
 import de.ms.tj.editor.preferences.IPreferenceManager;
-import de.ms.tj.editor.preferences.SyntaxElementPreference;
+import de.ms.tj.model.ISyntaxElement;
 import de.ms.tj.model.ISyntaxElementLibrary;
 import de.ms.tj.model.SyntaxBrowser;
 
@@ -65,8 +63,8 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 	private ITokenScanner getCommentScanner() {
 		if (this.commentScanner == null) {
 			this.commentScanner = new RuleBasedScanner();
-			SyntaxElementPreference preference = this.pManager.getSyntaxElementPreference(SyntaxBrowser.getInstance().getElementById(ISyntaxElementLibrary.COMMENT), true);
-			this.commentScanner.setDefaultReturnToken(new Token(preference.toTextAttributes(Display.getDefault())));
+			ISyntaxElement sElement = SyntaxBrowser.getInstance().getElementById(ISyntaxElementLibrary.COMMENT);
+			this.commentScanner.setDefaultReturnToken(new SyntaxConfigurationToken(this.pManager, sElement));
 		}
 		return this.commentScanner;
 	}
@@ -85,8 +83,8 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 	private ITokenScanner getStringScanner() {
 		if (this.stringScanner == null) {
 			this.stringScanner = new RuleBasedScanner();
-			SyntaxElementPreference preference = this.pManager.getSyntaxElementPreference(SyntaxBrowser.getInstance().getElementById(ISyntaxElementLibrary.STRING), true);
-			this.stringScanner.setDefaultReturnToken(new Token(preference.toTextAttributes(Display.getDefault())));
+			ISyntaxElement sElement = SyntaxBrowser.getInstance().getElementById(ISyntaxElementLibrary.STRING);
+			this.stringScanner.setDefaultReturnToken(new SyntaxConfigurationToken(this.pManager, sElement));
 		}
 		return this.stringScanner;
 	}
