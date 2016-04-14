@@ -1,6 +1,5 @@
 package de.ms.tj.editor;
 
-import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
@@ -11,8 +10,12 @@ import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+
+import de.ms.tj.editor.preferences.IPreferenceManager;
+import de.ms.tj.editor.preferences.SyntaxElementPreference;
+import de.ms.tj.model.ISyntaxElementLibrary;
+import de.ms.tj.model.SyntaxBrowser;
 
 public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 
@@ -21,6 +24,12 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 	private RuleBasedScanner commentScanner;
 
 	private RuleBasedScanner stringScanner;
+	
+	private IPreferenceManager pManager;
+	
+	public TjSourceViewerConfiguration(IPreferenceManager pManager) {
+		this.pManager = pManager;
+	}
 	
 	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
@@ -56,7 +65,8 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 	private ITokenScanner getCommentScanner() {
 		if (this.commentScanner == null) {
 			this.commentScanner = new RuleBasedScanner();
-			this.commentScanner.setDefaultReturnToken(new Token(new TextAttribute(Display.getCurrent().getSystemColor(SWT.COLOR_GRAY))));
+			SyntaxElementPreference preference = this.pManager.getSyntaxElementPreference(SyntaxBrowser.getInstance().getElementById(ISyntaxElementLibrary.COMMENT), true);
+			this.commentScanner.setDefaultReturnToken(new Token(preference.toTextAttributes(Display.getDefault())));
 		}
 		return this.commentScanner;
 	}
@@ -75,7 +85,8 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 	private ITokenScanner getStringScanner() {
 		if (this.stringScanner == null) {
 			this.stringScanner = new RuleBasedScanner();
-			this.stringScanner.setDefaultReturnToken(new Token(new TextAttribute(Display.getCurrent().getSystemColor(SWT.COLOR_GREEN))));
+			SyntaxElementPreference preference = this.pManager.getSyntaxElementPreference(SyntaxBrowser.getInstance().getElementById(ISyntaxElementLibrary.STRING), true);
+			this.stringScanner.setDefaultReturnToken(new Token(preference.toTextAttributes(Display.getDefault())));
 		}
 		return this.stringScanner;
 	}

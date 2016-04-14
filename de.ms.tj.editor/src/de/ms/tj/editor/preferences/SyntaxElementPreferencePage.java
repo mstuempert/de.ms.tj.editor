@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import org.eclipse.jface.preference.ColorSelector;
 import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -26,6 +28,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.osgi.service.prefs.BackingStoreException;
 
+import de.ms.tj.editor.TjDocumentSetupParticipant;
+import de.ms.tj.editor.TjSourceViewerConfiguration;
 import de.ms.tj.model.ISyntaxElement;
 import de.ms.tj.model.SyntaxBrowser;
 import de.ms.tj.model.SyntaxLabelProvider;
@@ -45,6 +49,7 @@ public class SyntaxElementPreferencePage extends PreferencePage implements IWork
 	private TreeViewer treeViewer;
 	
 	private HashMap<ISyntaxElement, SyntaxElementPreference> preferences;
+	private SourceViewer sourceViewer;
 
 	public SyntaxElementPreferencePage() {
 		this.pManager = new PreferenceManager();
@@ -113,13 +118,12 @@ public class SyntaxElementPreferencePage extends PreferencePage implements IWork
 		this.strikethroughButton.setText("Strikethrough");
 		this.strikethroughButton.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, false, false, 2, 1));
 
-		this.treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				Object element = ((IStructuredSelection) event.getSelection()).getFirstElement();
-				setSelectedElement(element);
-			}
-		});
+		this.sourceViewer = createSourceViewer(mainComp);
+		GridData gData = new GridData(GridData.FILL_BOTH);
+		gData.widthHint = 250;
+		gData.heightHint = 250;
+		this.sourceViewer.getControl().setLayoutData(gData);
+		
 		this.inheritButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				setControlButtonsEnabled(!inheritButton.getSelection());
@@ -152,9 +156,12 @@ public class SyntaxElementPreferencePage extends PreferencePage implements IWork
 		return mainComp;
 
 	}
-	
+
 	@Override
 	protected void performDefaults() {
+		this.preferences.clear();
+		setSelectedElement(((IStructuredSelection) this.treeViewer.getSelection()).getFirstElement()); 
+		this.sourceViewer.refresh();
 		super.performDefaults();
 	}
 	
@@ -201,7 +208,54 @@ public class SyntaxElementPreferencePage extends PreferencePage implements IWork
 				}
 			}
 		});
+		tViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				Object element = ((IStructuredSelection) event.getSelection()).getFirstElement();
+				setSelectedElement(element);
+			}
+		});
 		return tViewer;
+	}
+	
+	protected SourceViewer createSourceViewer(Composite parent) {
+		SourceViewer sViewer = new SourceViewer(parent, null, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		sViewer.configure(new TjSourceViewerConfiguration(new IPreferenceManager() {
+			@Override
+			public SyntaxElementPreference getSyntaxElementPreference(ISyntaxElement e, boolean useInheritance) {
+				return getPreferences(e);
+			}
+		}));
+		String ls = System.getProperty("line.separator");
+		Document doc = new Document(
+				"/* A multi" + ls
+				+ "   line comment" + ls
+				+ "*/" + ls + ls
+				+ "project test \"Just a test\" {" + ls
+				+ "  # We have two scenarios." + ls
+				+ "  scenario plan \"Plan\" {" + ls
+				+ "    scenario delayed \"Delayed\"" + ls
+				+ "  }" + ls
+				+ "}" + ls + ls
+				+ "resource jim \"Jim Kirk\" {" + ls
+				+ "  efficiency 1.0" + ls
+				+ "  vacation 1970-01-01 - 2000-01-01" + ls
+				+ "}" + ls + ls
+				+ "task t1 \"We have something to do\" {" + ls
+				+ "  priority 100" + ls
+				+ "  effort 10d" + ls
+				+ "  allocate jim" + ls
+				+ "}" + ls + ls
+				+ "taskreport areport \"Show me details\" {" + ls
+				+ "  header -8<-" + ls
+				+ "    One Ring to rule them all, One Ring to find them," + ls
+				+ "    One Ring to bring them all, and in the darkness bind them," + ls
+				+ "  ->8<" + ls
+				+ "}"
+				);
+		new TjDocumentSetupParticipant().setup(doc);
+		sViewer.setDocument(doc);
+		return sViewer;
 	}
 
 	private void clearButtons() {
@@ -238,6 +292,7 @@ public class SyntaxElementPreferencePage extends PreferencePage implements IWork
 			p.setUnderline(this.underlineButton.getSelection());
 			p.setStrikethrough(this.strikethroughButton.getSelection());
 			this.preferences.put(e, p);
+			this.sourceViewer.refresh();
 		}
 	}
 	
