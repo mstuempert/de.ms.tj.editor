@@ -156,7 +156,7 @@ public class SyntaxElementPreferencePage extends PreferencePage implements IWork
 		return mainComp;
 
 	}
-
+	
 	@Override
 	protected void performDefaults() {
 		this.preferences.clear();

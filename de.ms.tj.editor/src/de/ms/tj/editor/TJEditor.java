@@ -20,6 +20,7 @@ public class TJEditor extends TextEditor {
 			public void preferenceChange(PreferenceChangeEvent event) {
 				Preferences node = event.getNode();
 				String key = event.getKey();
+				getSourceViewer().setDocument(getSourceViewer().getDocument());
 			}
 		});
 	}
