@@ -1,4 +1,4 @@
-package de.ms.tj.editor.preferences;
+package de.ms.tj.editor.internal;
 
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.DefaultScope;
@@ -8,12 +8,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.osgi.service.prefs.BackingStoreException;
 
-import de.ms.tj.editor.internal.Activator;
+import de.ms.tj.editor.preferences.IPreferenceManager;
+import de.ms.tj.editor.preferences.SyntaxElementPreference;
 import de.ms.tj.model.ISyntaxElement;
 import de.ms.tj.model.ISyntaxElementLibrary;
 import de.ms.tj.model.SyntaxBrowser;
 
-public class PreferenceManager implements IPreferenceManager {
+class PreferenceManager implements IPreferenceManager {
 
 	private static final String PREFERENCE_NODE = Activator.PLUGIN_ID;
 	
@@ -25,7 +26,7 @@ public class PreferenceManager implements IPreferenceManager {
 	
 	private static final String STYLE_KEY = "_style";
 	
-	public PreferenceManager() {
+	PreferenceManager() {
 		initDefaults();
 	}
 	
@@ -73,7 +74,7 @@ public class PreferenceManager implements IPreferenceManager {
 		pref.flush();
 	}
 	
-	protected IEclipsePreferences getPreferences() {
+	public IEclipsePreferences getPreferences() {
 		return ConfigurationScope.INSTANCE.getNode(PREFERENCE_NODE);
 	}
 	

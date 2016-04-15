@@ -2,6 +2,7 @@ package de.ms.tj.editor.preferences;
 
 import java.util.HashMap;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.preference.ColorSelector;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.text.Document;
@@ -30,6 +31,7 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import de.ms.tj.editor.TjDocumentSetupParticipant;
 import de.ms.tj.editor.TjSourceViewerConfiguration;
+import de.ms.tj.editor.internal.Activator;
 import de.ms.tj.model.ISyntaxElement;
 import de.ms.tj.model.SyntaxBrowser;
 import de.ms.tj.model.SyntaxLabelProvider;
@@ -45,14 +47,12 @@ public class SyntaxElementPreferencePage extends PreferencePage implements IWork
 	private Button underlineButton;
 	private Button strikethroughButton;
 
-	private PreferenceManager pManager;
 	private TreeViewer treeViewer;
 	
 	private HashMap<ISyntaxElement, SyntaxElementPreference> preferences;
 	private SourceViewer sourceViewer;
 
 	public SyntaxElementPreferencePage() {
-		this.pManager = new PreferenceManager();
 		this.preferences = new HashMap<ISyntaxElement, SyntaxElementPreference>();
 	}
 
@@ -169,7 +169,7 @@ public class SyntaxElementPreferencePage extends PreferencePage implements IWork
 	public boolean performOk() {
 		for (ISyntaxElement e : this.preferences.keySet()) {
 			try {
-				this.pManager.setSyntaxElementPreference(e, this.preferences.get(e));
+				Activator.getDefault().getPreferenceManager().setSyntaxElementPreference(e, this.preferences.get(e));
 			} catch (BackingStoreException exc) {
 				setErrorMessage(exc.getMessage());
 				return false;
@@ -223,7 +223,17 @@ public class SyntaxElementPreferencePage extends PreferencePage implements IWork
 		sViewer.configure(new TjSourceViewerConfiguration(new IPreferenceManager() {
 			@Override
 			public SyntaxElementPreference getSyntaxElementPreference(ISyntaxElement e, boolean useInheritance) {
-				return getPreferences(e);
+				return SyntaxElementPreferencePage.this.getPreferences(e);
+			}
+
+			@Override
+			public void setSyntaxElementPreference(ISyntaxElement e, SyntaxElementPreference p)
+					throws BackingStoreException {
+			}
+			
+			@Override
+			public IEclipsePreferences getPreferences() {
+				return Activator.getDefault().getPreferenceManager().getPreferences();
 			}
 		}));
 		String ls = System.getProperty("line.separator");
@@ -301,7 +311,7 @@ public class SyntaxElementPreferencePage extends PreferencePage implements IWork
 		if (e != null) {
 			p = this.preferences.get(e);
 			if (p == null) {
-				p = this.pManager.getSyntaxElementPreference(e, false);
+				p = Activator.getDefault().getPreferenceManager().getSyntaxElementPreference(e, false);
 				this.preferences.put(e, p);
 			}
 		}
