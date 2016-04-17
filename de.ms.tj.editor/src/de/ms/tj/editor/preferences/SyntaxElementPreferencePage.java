@@ -30,7 +30,7 @@ import de.ms.tj.editor.TjSourceViewerConfiguration;
 import de.ms.tj.editor.internal.Activator;
 import de.ms.tj.editor.internal.SyntaxElementPreference;
 import de.ms.tj.model.ISyntaxElement;
-import de.ms.tj.model.SyntaxBrowser;
+import de.ms.tj.model.Syntax;
 import de.ms.tj.model.SyntaxLabelProvider;
 import de.ms.tj.model.SyntaxTreeContentProvider;
 
@@ -209,7 +209,7 @@ public class SyntaxElementPreferencePage extends PreferencePage implements IWork
 		TreeViewer tViewer = new TreeViewer(parent, SWT.BORDER);
 		tViewer.setContentProvider(new SyntaxTreeContentProvider());
 		tViewer.setLabelProvider(new SyntaxLabelProvider());
-		tViewer.setInput(SyntaxBrowser.INSTANCE.getSyntaxRoot());
+		tViewer.setInput(Syntax.BROWSER.getSyntaxRoot());
 		tViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {

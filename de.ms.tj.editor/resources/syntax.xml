@@ -1,0 +1,10 @@
+<xml>
+	<commands>
+		<command name="project">
+		</command>
+		<command name="resource">
+		</command>
+		<command name="task">
+		</command>
+	</commands>
+</xml>

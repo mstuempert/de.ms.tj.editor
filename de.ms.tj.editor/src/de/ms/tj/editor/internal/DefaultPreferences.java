@@ -8,7 +8,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import de.ms.tj.model.ISyntaxElement;
 import de.ms.tj.model.ISyntaxElementLibrary;
-import de.ms.tj.model.SyntaxBrowser;
+import de.ms.tj.model.Syntax;
 
 public class DefaultPreferences {
 
@@ -55,15 +55,15 @@ public class DefaultPreferences {
 	private void initialize() {
 		
 		this.defaultSyntaxElementPreferences.put(
-				SyntaxBrowser.INSTANCE.getElementById(ISyntaxElementLibrary.COMMENT),
+				Syntax.BROWSER.getElementById(ISyntaxElementLibrary.COMMENT),
 				DEFAULT_COMMENT_PREFERENCE);
 		
 		this.defaultSyntaxElementPreferences.put(
-				SyntaxBrowser.INSTANCE.getElementById(ISyntaxElementLibrary.STRING),
+				Syntax.BROWSER.getElementById(ISyntaxElementLibrary.STRING),
 				DEFAULT_STRING_PREFERENCE);
 		
 		this.defaultSyntaxElementPreferences.put(
-				SyntaxBrowser.INSTANCE.getElementById(ISyntaxElementLibrary.COMMAND),
+				Syntax.BROWSER.getElementById(ISyntaxElementLibrary.COMMAND),
 				DEFAULT_COMMAND_PREFERENCE);
 
 	}

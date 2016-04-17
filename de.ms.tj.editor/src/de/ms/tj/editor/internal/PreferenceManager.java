@@ -14,7 +14,7 @@ import de.ms.tj.editor.preferences.IPreferenceManager;
 import de.ms.tj.editor.preferences.ISyntaxElementPreference;
 import de.ms.tj.model.ISyntaxContainer;
 import de.ms.tj.model.ISyntaxElement;
-import de.ms.tj.model.SyntaxBrowser;
+import de.ms.tj.model.Syntax;
 
 class PreferenceManager implements IPreferenceManager {
 	
@@ -41,7 +41,7 @@ class PreferenceManager implements IPreferenceManager {
 		IEclipsePreferences node = getPreferenceNode(PREFERENCE_NODE_SYNTAX_ELEMENT);
 		
 		Queue<ISyntaxElement> elements = new LinkedList<ISyntaxElement>();
-		elements.add(SyntaxBrowser.INSTANCE.getSyntaxRoot());
+		elements.add(Syntax.BROWSER.getSyntaxRoot());
 		
 		while (!elements.isEmpty()) {
 			
