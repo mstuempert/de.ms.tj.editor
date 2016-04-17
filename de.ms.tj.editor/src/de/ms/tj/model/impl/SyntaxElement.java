@@ -38,5 +38,10 @@ class SyntaxElement implements ISyntaxElement {
 	public boolean isLeaf() {
 		return true;
 	}
+	
+	@Override
+	public String toString() {
+		return "SyntaxElement[id=\"" + this.id + "\"; displayName=\"" + this.displayName + "\"]"; 
+	}
 
 }

@@ -1,12 +1,15 @@
-package de.ms.tj.editor.preferences;
+package de.ms.tj.editor.internal;
 
+import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
-public class SyntaxElementPreference {
+import de.ms.tj.editor.preferences.ISyntaxElementPreference;
+
+public class SyntaxElementPreference implements ISyntaxElementPreference {
 
 	private boolean isInherit;
 
@@ -15,7 +18,7 @@ public class SyntaxElementPreference {
 	private RGB background;
 
 	private int style;
-
+	
 	public SyntaxElementPreference() {
 		this(false, null, null, SWT.NONE);
 	}
@@ -90,6 +93,15 @@ public class SyntaxElementPreference {
 	public void setStrikethrough(boolean on) {
 		setStyle(TextAttribute.STRIKETHROUGH, on);
 	}
+	
+	@Override
+	public String toString() {
+		return "SyntaxElementPreference[isInherit=" + isInherit
+				+ "; foreground=" + (this.foreground == null ? "null" : StringConverter.asString(this.foreground))
+				+ "; background=" + (this.background == null ? "null" : StringConverter.asString(this.background))
+				+ "; style=" + this.style
+				+ "]";
+	}
 
 	public TextAttribute toTextAttributes(Display display) {
 		return new TextAttribute(
@@ -109,7 +121,31 @@ public class SyntaxElementPreference {
 			this.style &= ~s;
 		}
 	}
+	
+	static SyntaxElementPreference fromSyntaxElementPreference(ISyntaxElementPreference p) {
+		return (p instanceof SyntaxElementPreference)
+				? (SyntaxElementPreference) p
+						: new SyntaxElementPreference(p.isInherit(), p.getForeground(), p.getBackground(), p.getStyle());
+	}
+	
+	static SyntaxElementPreference fromString(String s) {
+		SyntaxElementPreference result = null;
+		String[] parts = s.split(";");
+		if (parts.length == 4) {
+			boolean isInherit = Boolean.parseBoolean(parts[0]);
+			RGB foreground = "null".equals(parts[1]) ? null : StringConverter.asRGB(parts[1]);
+			RGB background = "null".equals(parts[2]) ? null : StringConverter.asRGB(parts[2]);
+			int style = Integer.parseInt(parts[3]);
+			result = new SyntaxElementPreference(isInherit, foreground, background, style);
+		}
+		return result;
+	}
 
-
+	String toPreferenceString() {
+		return Boolean.toString(this.isInherit) + ";"
+				+ (this.foreground == null ? "null" : StringConverter.asString(this.foreground)) + ";"
+				+ (this.background == null ? "null" : StringConverter.asString(this.background)) + ";"
+				+ Integer.toString(this.style);
+	}
 
 }

@@ -63,7 +63,7 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 	private ITokenScanner getCommentScanner() {
 		if (this.commentScanner == null) {
 			this.commentScanner = new RuleBasedScanner();
-			ISyntaxElement sElement = SyntaxBrowser.getInstance().getElementById(ISyntaxElementLibrary.COMMENT);
+			ISyntaxElement sElement = SyntaxBrowser.INSTANCE.getElementById(ISyntaxElementLibrary.COMMENT);
 			this.commentScanner.setDefaultReturnToken(new SyntaxConfigurationToken(this.pManager, sElement));
 		}
 		return this.commentScanner;
@@ -83,7 +83,7 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 	private ITokenScanner getStringScanner() {
 		if (this.stringScanner == null) {
 			this.stringScanner = new RuleBasedScanner();
-			ISyntaxElement sElement = SyntaxBrowser.getInstance().getElementById(ISyntaxElementLibrary.STRING);
+			ISyntaxElement sElement = SyntaxBrowser.INSTANCE.getElementById(ISyntaxElementLibrary.STRING);
 			this.stringScanner.setDefaultReturnToken(new SyntaxConfigurationToken(this.pManager, sElement));
 		}
 		return this.stringScanner;

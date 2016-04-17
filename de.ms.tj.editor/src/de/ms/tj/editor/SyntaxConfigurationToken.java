@@ -4,6 +4,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.swt.widgets.Display;
 
 import de.ms.tj.editor.preferences.IPreferenceManager;
+import de.ms.tj.editor.preferences.ISyntaxElementPreference;
 import de.ms.tj.model.ISyntaxElement;
 
 class SyntaxConfigurationToken implements IToken {
@@ -39,7 +40,8 @@ class SyntaxConfigurationToken implements IToken {
 
 	@Override
 	public Object getData() {
-		return this.pManager.getSyntaxElementPreference(this.sElement, true).toTextAttributes(Display.getDefault());
+		ISyntaxElementPreference p = this.pManager.getSyntaxElementPreference(this.sElement, true);
+		return p != null ? p.toTextAttributes(Display.getDefault()) : null;
 	}
 
 }
