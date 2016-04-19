@@ -2,9 +2,9 @@ package de.ms.tj.model;
 
 public interface ISyntaxBrowser {
 	
-	ICommand getCommand(String name);
+	IKeyword getKeyword(String name);
 	
-	ICommand[] getCommands();
+	IKeyword[] getKeywords();
 	
 	ISyntaxContainer getSyntaxRoot();
 	

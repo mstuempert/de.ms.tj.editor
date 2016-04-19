@@ -17,7 +17,7 @@ public class TjDocumentSetupParticipant implements IDocumentSetupParticipant {
 	public void setup(IDocument document) {
 		TjDocumentConfiguration configuration = new TjDocumentConfiguration();
 		RuleBasedPartitionScanner scanner = new RuleBasedPartitionScanner();
-		scanner.setDefaultReturnToken(configuration.getDefaultToken());
+		//scanner.setDefaultReturnToken(configuration.getDefaultToken());
 		IPredicateRule[] rules = createRules(configuration);
 		scanner.setPredicateRules(rules);
 		IDocumentPartitioner partitioner = new FastPartitioner(scanner, TjDocumentConfiguration.LEGAL_CONTENT_TYPES);

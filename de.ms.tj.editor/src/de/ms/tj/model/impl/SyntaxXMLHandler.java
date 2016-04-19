@@ -7,13 +7,14 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import de.ms.tj.model.ICommand;
+import de.ms.tj.model.IKeyword;
 
 public class SyntaxXMLHandler extends DefaultHandler {
 	
 	private enum Tag {
 		
-		XML("xml", null), COMMANDS("commands", XML), COMMAND("command", COMMANDS);
+		XML("xml", null),
+		KEYWORDS("keywords", XML), KEYWORD("keyword", KEYWORDS);
 		
 		public String name;
 		
@@ -37,7 +38,7 @@ public class SyntaxXMLHandler extends DefaultHandler {
 	
 	private Tag currentTag;
 	
-	public List<ICommand> commands = new ArrayList<ICommand>();
+	public List<IKeyword> keywords = new ArrayList<IKeyword>();
 	
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -68,12 +69,12 @@ public class SyntaxXMLHandler extends DefaultHandler {
 			throw new SAXException("Opening tag is not valid at this position: " + qName);
 		}
 		
-		if (Tag.COMMAND.equals(tag)) {
+		if (Tag.KEYWORD.equals(tag)) {
 			String name = attributes.getValue("name");
 			if (name == null) {
-				throw new SAXException("Command-Tag is missing required name-attribute");
+				throw new SAXException("Keyword-Tag is missing required name-attribute");
 			}
-			this.commands.add(new Command(name));
+			this.keywords.add(new Keyword(name));
 		}
 		
 		this.currentTag = tag;

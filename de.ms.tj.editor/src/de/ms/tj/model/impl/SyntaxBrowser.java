@@ -7,7 +7,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 
 import de.ms.tj.editor.internal.Activator;
-import de.ms.tj.model.ICommand;
+import de.ms.tj.model.IKeyword;
 import de.ms.tj.model.ISyntaxBrowser;
 import de.ms.tj.model.ISyntaxContainer;
 import de.ms.tj.model.ISyntaxElement;
@@ -16,7 +16,7 @@ public class SyntaxBrowser implements ISyntaxBrowser {
 	
 	private ISyntaxContainer syntaxRoot;
 	
-	private ICommand[] commands;
+	private IKeyword[] keywords;
 	
 	public SyntaxBrowser() {
 		this.syntaxRoot = new SyntaxFactory().createSyntaxModel();
@@ -24,15 +24,15 @@ public class SyntaxBrowser implements ISyntaxBrowser {
 			InputStream is = FileLocator.openStream(Activator.getDefault().getBundle(), new Path("resources/syntax.xml"), false);
 			SyntaxParser parser = new SyntaxParser();
 			parser.parse(is);
-			this.commands = parser.getCommands();
+			this.keywords = parser.getKeywords();
 		} catch (Exception e) {
 			Activator.logException(e);
 		}
 	}
 	
-	public ICommand getCommand(String name) {
+	public IKeyword getKeyword(String name) {
 		Assert.isNotNull(name);
-		for (ICommand c : this.commands) {
+		for (IKeyword c : this.keywords) {
 			if (name.equals(c.getName())) {
 				return c;
 			}
@@ -40,8 +40,8 @@ public class SyntaxBrowser implements ISyntaxBrowser {
 		return null;
 	}
 	
-	public ICommand[] getCommands() {
-		return this.commands;
+	public IKeyword[] getKeywords() {
+		return this.keywords;
 	}
 	
 	public ISyntaxContainer getSyntaxRoot() {

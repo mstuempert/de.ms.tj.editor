@@ -3,20 +3,22 @@ package de.ms.tj.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
-import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.ITokenScanner;
+import org.eclipse.jface.text.rules.IWhitespaceDetector;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
+import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 
 import de.ms.tj.editor.preferences.IPreferenceManager;
-import de.ms.tj.model.ICommand;
+import de.ms.tj.model.IKeyword;
 import de.ms.tj.model.ISyntaxElement;
 import de.ms.tj.model.ISyntaxElementLibrary;
 import de.ms.tj.model.Syntax;
@@ -51,8 +53,8 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 		PresentationReconciler reconciler = (PresentationReconciler) super.getPresentationReconciler(sourceViewer);
 		
 		DefaultDamagerRepairer dr = new DefaultDamagerRepairer(getCodeScanner());
-		reconciler.setDamager(dr, TjDocumentConfiguration.TJ_CODE_PARTITION);
-		reconciler.setRepairer(dr, TjDocumentConfiguration.TJ_CODE_PARTITION);
+		reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
+		reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
 		
 		dr = new DefaultDamagerRepairer(getCommentScanner());
 		reconciler.setDamager(dr, TjDocumentConfiguration.TJ_COMMENT_PARTITION);
@@ -80,6 +82,7 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 			this.codeScanner = new RuleBasedScanner();
 			List<IRule> rules = new ArrayList<IRule>();
 			addCommandRules(rules);
+			addWhitespaceRule(rules);
 			this.codeScanner.setRules(rules.toArray(new IRule[rules.size()]));
 		}
 		return this.codeScanner;
@@ -107,10 +110,20 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 			}
 		});
 		SyntaxConfigurationToken token = new SyntaxConfigurationToken(pManager, Syntax.BROWSER.getElementById(ISyntaxElementLibrary.COMMAND));
-		for (ICommand command : Syntax.BROWSER.getCommands()) {
+		for (IKeyword command : Syntax.BROWSER.getKeywords()) {
 			rule.addWord(command.getName(), token);
 		}
 		rules.add(rule);
+	}
+
+	private void addWhitespaceRule(List<IRule> rules) {
+		rules.add(new WhitespaceRule(new IWhitespaceDetector() {
+			
+			@Override
+			public boolean isWhitespace(char c) {
+				return Character.isWhitespace(c);
+			}
+		}));
 	}
 	
 }

@@ -9,14 +9,14 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 
-import de.ms.tj.model.ICommand;
+import de.ms.tj.model.IKeyword;
 
 public class SyntaxParser {
 	
 	private SyntaxXMLHandler handler = new SyntaxXMLHandler();
 	
-	ICommand[] getCommands() {
-		return this.handler.commands.toArray(new ICommand[this.handler.commands.size()]);
+	IKeyword[] getKeywords() {
+		return this.handler.keywords.toArray(new IKeyword[this.handler.keywords.size()]);
 	}
 	
 	void parse(InputStream is) throws ParserConfigurationException, SAXException, IOException {
