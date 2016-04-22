@@ -11,7 +11,9 @@ import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.IWhitespaceDetector;
 import org.eclipse.jface.text.rules.IWordDetector;
+import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
+import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -29,8 +31,6 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 
 	private RuleBasedScanner commentScanner;
 
-	private RuleBasedScanner stringScanner;
-	
 	private IPreferenceManager pManager;
 	
 	public TjSourceViewerConfiguration(IPreferenceManager pManager) {
@@ -60,10 +60,6 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 		reconciler.setDamager(dr, TjDocumentConfiguration.TJ_COMMENT_PARTITION);
 		reconciler.setRepairer(dr, TjDocumentConfiguration.TJ_COMMENT_PARTITION);
 		
-		dr = new DefaultDamagerRepairer(getStringScanner());
-		reconciler.setDamager(dr, TjDocumentConfiguration.TJ_STRING_PARTITION);
-		reconciler.setRepairer(dr, TjDocumentConfiguration.TJ_STRING_PARTITION);
-		
 		return reconciler;
 		
 	}
@@ -81,6 +77,7 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 		if (this.codeScanner == null) {
 			this.codeScanner = new RuleBasedScanner();
 			List<IRule> rules = new ArrayList<IRule>();
+			addStringRules(rules);
 			addCommandRules(rules);
 			addWhitespaceRule(rules);
 			this.codeScanner.setRules(rules.toArray(new IRule[rules.size()]));
@@ -88,15 +85,12 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 		return this.codeScanner;
 	}
 
-	private ITokenScanner getStringScanner() {
-		if (this.stringScanner == null) {
-			this.stringScanner = new RuleBasedScanner();
-			ISyntaxElement sElement = Syntax.BROWSER.getElementById(ISyntaxElementLibrary.STRING);
-			this.stringScanner.setDefaultReturnToken(new SyntaxConfigurationToken(this.pManager, sElement));
-		}
-		return this.stringScanner;
+	private void addStringRules(List<IRule> rules) {
+		rules.add(new SingleLineRule("\"", "\"", new SyntaxConfigurationToken(pManager, Syntax.BROWSER.getElementById(Syntax.STRING_SINGLE_LINE))));
+		rules.add(new SingleLineRule("'", "'", new SyntaxConfigurationToken(pManager, Syntax.BROWSER.getElementById(Syntax.STRING_SINGLE_LINE))));
+		rules.add(new MultiLineRule("-8<-", "->8-", new SyntaxConfigurationToken(pManager, Syntax.BROWSER.getElementById(Syntax.STRING_MULTI_LINE))));
 	}
-	
+
 	private void addCommandRules(List<IRule> rules) {
 		WordRule rule = new WordRule(new IWordDetector() {
 			@Override
@@ -109,7 +103,7 @@ public class TjSourceViewerConfiguration extends SourceViewerConfiguration {
 				return Character.isLetter(c);
 			}
 		});
-		SyntaxConfigurationToken token = new SyntaxConfigurationToken(pManager, Syntax.BROWSER.getElementById(ISyntaxElementLibrary.COMMAND));
+		SyntaxConfigurationToken token = new SyntaxConfigurationToken(pManager, Syntax.BROWSER.getElementById(Syntax.COMMAND));
 		for (IKeyword command : Syntax.BROWSER.getKeywords()) {
 			rule.addWord(command.getName(), token);
 		}

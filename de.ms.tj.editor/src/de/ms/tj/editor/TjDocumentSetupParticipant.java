@@ -9,7 +9,6 @@ import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
-import org.eclipse.jface.text.rules.SingleLineRule;
 
 public class TjDocumentSetupParticipant implements IDocumentSetupParticipant {
 
@@ -32,10 +31,7 @@ public class TjDocumentSetupParticipant implements IDocumentSetupParticipant {
 	protected IPredicateRule[] createRules(TjDocumentConfiguration configuration) {
 		return new IPredicateRule[] {
 				new EndOfLineRule("#", configuration.getToken(TjDocumentConfiguration.TJ_COMMENT_PARTITION)),
-				new MultiLineRule("/*", "*/", configuration.getToken(TjDocumentConfiguration.TJ_COMMENT_PARTITION)),
-				new SingleLineRule("\"", "\"", configuration.getToken(TjDocumentConfiguration.TJ_STRING_PARTITION), '\\'),
-				new SingleLineRule("'", "'", configuration.getToken(TjDocumentConfiguration.TJ_STRING_PARTITION), '\\'),
-				new MultiLineRule("-8<-", "->8-", configuration.getToken(TjDocumentConfiguration.TJ_STRING_PARTITION))
+				new MultiLineRule("/*", "*/", configuration.getToken(TjDocumentConfiguration.TJ_COMMENT_PARTITION))
 		};
 	}
 

@@ -8,7 +8,6 @@ public class SyntaxFactory implements ISyntaxElementLibrary {
 	public ISyntaxContainer createSyntaxModel() {
 		SyntaxContainer root = new SyntaxContainer(null, ROOT, "The root of all evil");
 		buildCommentSyntax(root);
-		buildStringSyntax(root);
 		buildCodeSyntax(root);
 		return root;
 	}
@@ -16,6 +15,7 @@ public class SyntaxFactory implements ISyntaxElementLibrary {
 	private SyntaxElement buildCodeSyntax(SyntaxContainer parent) {
 		SyntaxContainer codeRoot = new SyntaxContainer(parent, CODE, "Code");
 		new SyntaxElement(codeRoot, COMMAND, "Command");
+		buildStringSyntax(codeRoot);
 		buildTypeSyntax(codeRoot);
 		return codeRoot;
 	}

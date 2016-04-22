@@ -10,16 +10,11 @@ public class TjDocumentConfiguration {
 	
 	public static final String TJ_COMMENT_PARTITION = "JD_COMMENT_PARTITION";
 	
-	public static final String TJ_STRING_PARTITION = "JD_STRING_PARTITION";
-	
 	private static final IToken TJ_COMMENT_TOKEN = new Token(TJ_COMMENT_PARTITION);
 	
-	private static final IToken TJ_STRING_TOKEN = new Token(TJ_STRING_PARTITION);
-
 	public static final String[] LEGAL_CONTENT_TYPES = new String[] {
 			IDocument.DEFAULT_CONTENT_TYPE,
 			TJ_COMMENT_PARTITION,
-			TJ_STRING_PARTITION
 	};
 	
 	public IToken getDefaultToken() {
@@ -31,9 +26,6 @@ public class TjDocumentConfiguration {
 		switch (partitionType) {
 		case TJ_COMMENT_PARTITION:
 			token = TJ_COMMENT_TOKEN;
-			break;
-		case TJ_STRING_PARTITION:
-			token = TJ_STRING_TOKEN;
 			break;
 		}
 		return token;
