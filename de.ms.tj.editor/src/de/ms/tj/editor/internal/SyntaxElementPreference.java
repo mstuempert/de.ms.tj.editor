@@ -20,7 +20,7 @@ public class SyntaxElementPreference implements ISyntaxElementPreference {
 	private int style;
 	
 	public SyntaxElementPreference() {
-		this(false, null, null, SWT.NONE);
+		this(true, null, null, SWT.NONE);
 	}
 
 	public SyntaxElementPreference(boolean inherit, RGB foreground, RGB background, int style) {
